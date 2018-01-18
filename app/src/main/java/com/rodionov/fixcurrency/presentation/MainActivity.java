@@ -68,4 +68,10 @@ public class MainActivity extends AppCompatActivity implements MainView, Currenc
         adapter = new CurrencyRateAdapter(this);
         recyclerView.setAdapter(adapter);
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mainPresenter.onDestroy();
+    }
 }

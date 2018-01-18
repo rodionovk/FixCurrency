@@ -44,6 +44,9 @@ public class CurrencyRateAdapter extends RecyclerView.Adapter<CurrencyRateAdapte
     }
 
     void setItemToTop(int pos) {
+        if(pos == -1)
+            return;
+
         items.add(0, items.get(pos));
         items.remove(pos + 1);
         notifyItemMoved(pos, 0);
