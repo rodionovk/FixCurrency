@@ -50,7 +50,7 @@ public class CurrencyRateAdapter extends RecyclerView.Adapter<CurrencyRateAdapte
     }
 
     void updateRates(String newValue, String name) {
-        if(TextUtils.isEmpty(newValue) || newValue.equals("0")) {
+        if(TextUtils.isEmpty(newValue) || newValue.equals("0") || newValue.equals("0.")) {
 
             for(Rate rate : items) {
                 rate.setValue("");
@@ -59,36 +59,32 @@ public class CurrencyRateAdapter extends RecyclerView.Adapter<CurrencyRateAdapte
         }
         else {
 
-            Double dTop = Double.parseDouble(newValue);
+            Double dNewValue = Double.parseDouble(newValue);
+            Double dRelateToBase = Double.parseDouble(currencies.getMapRates().get(name));
 
-            String valueTop = currencies.getMapRates().get(name);
-            Double dBaseTop = Double.parseDouble(valueTop);
-
-            if(newValue.equals("0.")) {
-                for(Rate rate : items) {
-                    rate.setValue("");
-                    notifyItemChanged(items.indexOf(rate));
-                }
-                return;
-            }
-
-            currencies.getMapRates().put(name, newValue);
-
-            for(int i=1; i<items.size(); i++) {
+            for(int i = 0; i < items.size(); i++) {
 
                 Rate rate = items.get(i);
 
-                String valueCurrent = currencies.getMapRates().get(rate.getName());
-                Double dCurent = Double.parseDouble(valueCurrent);
-                Double koef = dCurent/dBaseTop;
-                Double result = koef * dTop;
+                Double dRelateCurentToBase = Double.parseDouble(currencies.getMapRates().get(rate.getName()));
+                Double koef = dRelateCurentToBase/dRelateToBase;
+                Double result = koef * dNewValue;
 
-                currencies.getMapRates().put(rate.getName(), String.format(Locale.US, "%.4f", result));
+                String sResult = String.format(Locale.US, "%.4f", result);
 
-                rate.setValue(String.format(Locale.US, "%.4f", result));
-                notifyItemChanged(i);
+                rate.setValue(sResult);
+
+                if(i != 0)
+                    notifyItemChanged(i);
+
+                currencies.getMapRates().put(rate.getName(), sResult);
             }
         }
+    }
+
+    @Override
+    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
     }
 
     @Override
@@ -136,10 +132,14 @@ public class CurrencyRateAdapter extends RecyclerView.Adapter<CurrencyRateAdapte
         }
 
         @Override
-        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {  }
+        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            i++;
+        }
 
         @Override
-        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {  }
+        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            i++;
+        }
 
         @Override
         public void afterTextChanged(Editable editable) {
