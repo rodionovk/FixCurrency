@@ -25,7 +25,6 @@ import java.util.Locale;
 public class CurrencyRateAdapter extends RecyclerView.Adapter<CurrencyRateAdapter.CurrencyRateViewHolder> {
 
     private List<Rate> items  = new ArrayList<>();
-    private List<Rate> itemsCopy  = new ArrayList<>();
     private Currencies currencies;
 
     private OnCurrencyValueClickListener listener;
@@ -35,12 +34,13 @@ public class CurrencyRateAdapter extends RecyclerView.Adapter<CurrencyRateAdapte
     }
 
     public void setData(Currencies currencies) {
-        this.currencies = currencies;
-
-        this.items = currencies.getRates();
-        this.itemsCopy.clear();
-        this.itemsCopy.addAll(currencies.getRates());
-        notifyDataSetChanged();
+        if(this.currencies == null) {
+            this.currencies = currencies;
+            this.items = currencies.getRates();
+            notifyDataSetChanged();
+        } else {
+            recalcRates(currencies);
+        }
     }
 
     void setItemToTop(int pos) {
@@ -50,6 +50,38 @@ public class CurrencyRateAdapter extends RecyclerView.Adapter<CurrencyRateAdapte
         items.add(0, items.get(pos));
         items.remove(pos + 1);
         notifyItemMoved(pos, 0);
+    }
+
+    private void recalcRates(Currencies curr) {
+        Rate rate = items.get(0);
+
+        if(rate.getValue().equals(""))
+            return;
+
+        Double dNewValue = Double.parseDouble(rate.getValue());
+        Double dRelateToBase = Double.parseDouble(curr.getMapRates().get(rate.getName()));
+
+        for(int i = 0; i < items.size(); i++) {
+
+            Rate currentRate = items.get(i);
+
+            Double dRelateCurentToBase = Double.parseDouble(curr.getMapRates().get(currentRate.getName()));
+            Double koef = dRelateCurentToBase/dRelateToBase;
+            Double result = koef * dNewValue;
+
+            String sResult = String.format(Locale.US, "%.4f", result);
+
+            currentRate.setValue(sResult);
+
+            if(i != 0)
+                notifyItemChanged(i);
+
+            currencies.getMapRates().put(currentRate.getName(), sResult);
+        }
+    }
+
+    private void calcRates(Rate rate) {
+
     }
 
     void updateRates(String newValue, String name) {

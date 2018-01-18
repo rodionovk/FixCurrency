@@ -41,7 +41,7 @@ public class MainPresenter {
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnSubscribe(disp -> mainView.showLoading(true))
                 .doAfterTerminate(() -> mainView.showLoading(false))
-                //.repeatWhen(objectFlowable -> objectFlowable.delay(TIME_INTERVAL, TimeUnit.SECONDS, AndroidSchedulers.mainThread()))
+                .repeatWhen(objectFlowable -> objectFlowable.delay(TIME_INTERVAL, TimeUnit.SECONDS, AndroidSchedulers.mainThread()))
                 .subscribe(this::handleResponse, throwable -> mainView.showNetworkError(true));
 
         compositeDisposable.add(disposable);

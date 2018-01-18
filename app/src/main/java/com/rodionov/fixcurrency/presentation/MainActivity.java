@@ -38,6 +38,10 @@ public class MainActivity extends AppCompatActivity implements MainView, Currenc
 
     @Override
     public void showLoading(boolean show) {
+
+        if(adapter.getItemCount() > 0 && show)
+            return;
+
         findViewById(R.id.progressBar).setVisibility(show ? View.VISIBLE : View.GONE);
         recyclerView.setVisibility(show ? View.GONE : View.VISIBLE);
     }
