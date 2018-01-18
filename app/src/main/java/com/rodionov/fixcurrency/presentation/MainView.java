@@ -9,6 +9,6 @@ import com.rodionov.fixcurrency.models.Currencies;
 public interface MainView {
 
     void showLoading(boolean show);
-    void showNetworkError(boolean show);
+    void showError();
     void showRateCurrencies(Currencies currencies);
 }

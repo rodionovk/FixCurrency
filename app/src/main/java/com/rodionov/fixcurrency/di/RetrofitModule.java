@@ -5,7 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.rodionov.fixcurrency.BuildConfig;
 import com.rodionov.fixcurrency.data.FixApiService;
 import com.rodionov.fixcurrency.models.Currencies;
-import com.rodionov.fixcurrency.models.CurrencyRateDeserializer;
+import com.rodionov.fixcurrency.utils.CurrencyRateDeserializer;
 
 import java.util.concurrent.TimeUnit;
 

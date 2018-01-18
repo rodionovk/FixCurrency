@@ -1,4 +1,4 @@
-package com.rodionov.fixcurrency.models;
+package com.rodionov.fixcurrency.utils;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -8,6 +8,8 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import com.rodionov.fixcurrency.models.Currencies;
+import com.rodionov.fixcurrency.models.Rate;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;

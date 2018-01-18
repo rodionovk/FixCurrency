@@ -2,7 +2,6 @@ package com.rodionov.fixcurrency.presentation;
 
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
-import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +16,7 @@ import com.rodionov.fixcurrency.models.Rate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * Created by rodionov on 17.01.2018. FixCurrency
@@ -39,33 +39,34 @@ public class CurrencyRateAdapter extends RecyclerView.Adapter<CurrencyRateAdapte
             this.items = currencies.getRates();
             notifyDataSetChanged();
         } else {
-            recalcRates(currencies);
+            reCalcRatesByNewValues(currencies);
         }
     }
 
     void setItemToTop(int pos) {
-        if(pos == -1)
-            return;
-
         items.add(0, items.get(pos));
         items.remove(pos + 1);
         notifyItemMoved(pos, 0);
     }
 
-    private void recalcRates(Currencies curr) {
-        Rate rate = items.get(0);
+    private void reCalcRatesByNewValues(Currencies curr) {
 
-        if(rate.getValue().equals(""))
+        if(!items.get(0).isValid())
             return;
 
-        Double dNewValue = Double.parseDouble(rate.getValue());
-        Double dRelateToBase = Double.parseDouble(curr.getMapRates().get(rate.getName()));
+        calcRates(items.get(0), curr.getMapRates());
+    }
+
+    private void calcRates(Rate baseRate, Map<String, String> mapRates) {
+
+        Double dNewValue = Double.parseDouble(baseRate.getValue());
+        Double dRelateToBase = Double.parseDouble(mapRates.get(baseRate.getName()));
 
         for(int i = 0; i < items.size(); i++) {
 
             Rate currentRate = items.get(i);
 
-            Double dRelateCurentToBase = Double.parseDouble(curr.getMapRates().get(currentRate.getName()));
+            Double dRelateCurentToBase = Double.parseDouble(mapRates.get(currentRate.getName()));
             Double koef = dRelateCurentToBase/dRelateToBase;
             Double result = koef * dNewValue;
 
@@ -80,41 +81,18 @@ public class CurrencyRateAdapter extends RecyclerView.Adapter<CurrencyRateAdapte
         }
     }
 
-    private void calcRates(Rate rate) {
-
+    private void clearAllRates() {
+        for(Rate curRate : items) {
+            curRate.setValue("");
+            notifyItemChanged(items.indexOf(curRate));
+        }
     }
 
-    void updateRates(String newValue, String name) {
-        if(TextUtils.isEmpty(newValue) || newValue.equals("0") || newValue.equals("0.")) {
-
-            for(Rate rate : items) {
-                rate.setValue("");
-                notifyItemChanged(items.indexOf(rate));
-            }
-        }
-        else {
-
-            Double dNewValue = Double.parseDouble(newValue);
-            Double dRelateToBase = Double.parseDouble(currencies.getMapRates().get(name));
-
-            for(int i = 0; i < items.size(); i++) {
-
-                Rate rate = items.get(i);
-
-                Double dRelateCurentToBase = Double.parseDouble(currencies.getMapRates().get(rate.getName()));
-                Double koef = dRelateCurentToBase/dRelateToBase;
-                Double result = koef * dNewValue;
-
-                String sResult = String.format(Locale.US, "%.4f", result);
-
-                rate.setValue(sResult);
-
-                if(i != 0)
-                    notifyItemChanged(i);
-
-                currencies.getMapRates().put(rate.getName(), sResult);
-            }
-        }
+    void updateRates(Rate rate) {
+        if(rate.isValid())
+            calcRates(rate, currencies.getMapRates());
+        else
+            clearAllRates();
     }
 
     @Override
@@ -167,24 +145,21 @@ public class CurrencyRateAdapter extends RecyclerView.Adapter<CurrencyRateAdapte
         }
 
         @Override
-        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-            i++;
-        }
+        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
 
         @Override
-        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-            i++;
-        }
+        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
 
         @Override
         public void afterTextChanged(Editable editable) {
-            if(valueCurrency.hasFocus())
-                listener.onCurrencyValueEdit(editable.toString(), nameCurrency.getText().toString());
+            if(valueCurrency.hasFocus()) {
+                listener.onCurrencyValueEdit(new Rate(nameCurrency.getText().toString(), editable.toString()));
+            }
         }
     }
 
     interface OnCurrencyValueClickListener {
-        void onCurrencyValueEdit(String newValue, String name);
+        void onCurrencyValueEdit(Rate rate);
         void onValueFocused(int pos);
     }
 }

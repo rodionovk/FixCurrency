@@ -11,6 +11,7 @@ import com.rodionov.fixcurrency.FixCurrencyApp;
 import com.rodionov.fixcurrency.R;
 import com.rodionov.fixcurrency.business.CurrenciesInteractor;
 import com.rodionov.fixcurrency.models.Currencies;
+import com.rodionov.fixcurrency.models.Rate;
 
 import javax.inject.Inject;
 
@@ -47,7 +48,7 @@ public class MainActivity extends AppCompatActivity implements MainView, Currenc
     }
 
     @Override
-    public void showNetworkError(boolean show) {
+    public void showError() {
         Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show();
     }
 
@@ -57,8 +58,8 @@ public class MainActivity extends AppCompatActivity implements MainView, Currenc
     }
 
     @Override
-    public void onCurrencyValueEdit(String newValue, String name) {
-        adapter.updateRates(newValue, name);
+    public void onCurrencyValueEdit(Rate rate) {
+        adapter.updateRates(rate);
     }
 
     @Override

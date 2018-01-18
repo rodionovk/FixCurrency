@@ -21,7 +21,7 @@ import io.reactivex.schedulers.Schedulers;
  * Created by rodionov on 17.01.2018. FixCurrency
  */
 
-public class MainPresenter {
+class MainPresenter {
 
     private static final int TIME_INTERVAL = 1;
 
@@ -42,7 +42,7 @@ public class MainPresenter {
                 .doOnSubscribe(disp -> mainView.showLoading(true))
                 .doAfterTerminate(() -> mainView.showLoading(false))
                 .repeatWhen(objectFlowable -> objectFlowable.delay(TIME_INTERVAL, TimeUnit.SECONDS, AndroidSchedulers.mainThread()))
-                .subscribe(this::handleResponse, throwable -> mainView.showNetworkError(true));
+                .subscribe(this::handleResponse, throwable -> mainView.showError());
 
         compositeDisposable.add(disposable);
     }
